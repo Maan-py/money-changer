@@ -45,9 +45,9 @@
                 <ul tabindex="0"
                     class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow xl:hidden "
                     id="sidebar">
-                    <li><a>Homepage</a></li>
-                    <li><a>Portfolio</a></li>
-                    <li><a>About</a></li>
+                    <li><a href="#home">Homepage</a></li>
+                    <li><a href="#convert">Konversi</a></li>
+                    <li><a href="#currency">Mata Uang</a></li>
                 </ul>
             </div>
             <!-- Navbar untuk xl dan lebih besar -->
@@ -57,18 +57,22 @@
         </div>
         <div class="navbar-center">
             <ul class="menu hidden xl:block xl:flex xl:flex-row">
-                <li><a>Homepage</a></li>
-                <li><a>Portfolio</a></li>
-                <li><a>About</a></li>
+                <li><a href="#home">Homepage</a></li>
+                <li><a href="#convert">Konversi</a></li>
+                <li><a href="#currency">Mata Uang</a></li>
             </ul>
         </div>
         <div class="navbar-end">
-            <button class="btn btn-outline btn-info me-2"><a href="php/login.php">Login</a></button>
-
+            <button class="btn btn-xs sm:btn-sm md:btn-md lg:btn btn-info me-2">
+                <a href="php/login.php">Login</a>
+            </button>
+            <button class="btn btn-xs sm:btn-sm md:btn-md lg:btn btn-outline btn-info me-2">
+                <a href="php/register.php">Register</a>
+            </button>
         </div>
     </div>
     <!-- Hero -->
-    <div class="hero min-h-screen" style="background-image: url(img/header-bg.jpg);">
+    <div class="hero min-h-screen" id="home" style="background-image: url(img/header-bg.jpg);">
         <div class="hero-overlay bg-opacity-60 absolute"></div>
         <div class="hero-content fixed  text-neutral-content text-center">
             <div class="max-w-md">
@@ -84,7 +88,7 @@
             </div>
         </div>
     </div>
-    <div class="min-h-screen p-[2rem]">
+    <div class="min-h-screen scroll-mt-[8rem] mt-12" id="currency">
         <div class="flex flex-col items-center">
             <div class="flex flex-wrap justify-center gap-4" id="currency-cards">
                 <div class="card bg-base-100 w-96 shadow-xl">
@@ -246,38 +250,39 @@
             </div>
         </div>
     </div>
-    <div class="p-12 flex flex-col gap-5 md:flex-row" id="convert">
+    <div class="p-12 flex scroll-mt-[1rem] flex-col gap-5 md:flex-row  min-h-screen self-center" id="convert">
         <div class="flex flex-col gap-5 self-center mb-10 lg:w-1/2">
             <h1
                 class="text-3xl font-bold mt-7 bg-gradient-to-r text-transparent from-blue-500 to-teal-400 bg-clip-text ">
                 Ubah Uang Anda dengan Mudah dan Cepat!</h1>
-            <p class="lg:w-[30rem] lg:text-center xl:text-lg">Kami menyediakan layanan penukaran mata uang yang aman,
+            <p class="lg:w-[30rem] lg:mr-[5rem] lg:text-center xl:text-lg self-center">Kami menyediakan layanan
+                penukaran
+                mata
+                uang yang aman,
                 cepat, dan
                 transparan tanpa
                 biaya tersembunyi. Dapatkan nilai
                 tukar terbaik di pasar dan rasakan kenyamanan transaksi bersama kami.</p>
         </div>
-        <div class="rounded-sm bg-slate-800 p-5  lg:w-1/2">
+        <div class="rounded-sm bg-slate-800 p-5 lg:w-1/2 ">
             <h1 class="text-center font-bold text-xl">Penukaran Mata Uang</h1>
-            <form action="">
+            <form action="user_exe.php" method="post" id="currency-form">
                 <div class="mt-5">
                     <p class="mb-3 text-lg">Masukkan Jumlah</p>
-                    <input class="p-3 w-full rounded-md border" type="number" value="1" min="1" id="amount">
+                    <input class="p-3 w-full rounded-md border" type="number" value="1" min="1" id="amount"
+                        name="amount">
                 </div>
-                <div class="flex gap-5 mt-5 w-full justify-between">
+                <div class="flex gap-5 mt-5 justify-between w-full">
                     <div class="currency-dropdown relative">
                         <p class="text-lg">From</p>
                         <div
-                            class="p-2 rounded-md border w-32 mt-2 text-center flex gap-2 justify-center bg-black relative">
+                            class="py-2 rounded-md border lg:w-32 w-28 mt-2 text-center flex gap-2 justify-center bg-black relative sm:w-10">
                             <img src="https://flagsapi.com/US/shiny/32.png" id="currency-flag" alt="Currency Flag">
                             <p class="self-center" id="selected-currency">USD</p>
                             <select class="bg-black p-2 outline-none opacity-0 absolute top-0 left-0 w-full h-full"
-                                id="currency-select">
-                            </select>
+                                id="currency-select" name="from"></select>
                             <span
-                                class="dropdown-arrow absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                                ▼
-                            </span>
+                                class="dropdown-arrow absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">▼</span>
                         </div>
                     </div>
                     <div class="self-center mt-6">
@@ -285,31 +290,41 @@
                     </div>
                     <div>
                         <p class="text-lg">To</p>
-                        <div class="p-2 rounded-md border w-32 mt-2 bg-black text-center flex gap-2 justify-center">
+                        <div
+                            class="p-2 rounded-md border w-32 mt-2 bg-black text-center flex gap-2 justify-center w-full">
                             <img src="https://flagsapi.com/ID/shiny/32.png" alt="IDR Flag">
                             <p class="self-center">IDR</p>
                         </div>
                     </div>
-
+                </div>
+                <div class="flex flex-col gap-5 mt-5">
+                    <div id="loading-message" class="hidden">Sedang mengonversi...</div>
+                    <div class="exchange-rate w-full text-center border p-2 rounded-md" id="result">1 AED = Rp 4.268,44
+                    </div>
+                    <button type="button" class="btn btn-primary text-lg" id="exchange-button">Konversi</button>
+                    <button type="submit" class="btn btn-info text-lg" id="transaction-button" name="transaksi">Lakukan
+                        Transaksi!</button>
+                    <!-- Hidden input to store the exchange rate -->
+                    <input type="hidden" name="total_exchange_rate" id="total-exchange-rate">
                 </div>
             </form>
-            <div class="flex flex-col gap-5 mt-5">
-                <div id="loading-message" style="display: none;">Sedang mengonversi...</div>
-                <div class="exchange-rate w-full text-center border p-2 rounded-md" id="result">1 AED = Rp 4.268,44
+
+            <!-- <div class="flex flex-col gap-5 mt-5">
+                <div id="loading-message" class="hidden">Sedang mengonversi...</div>
+                <div class=" exchange-rate w-full text-center border p-2 rounded-md" id="result">1 AED = Rp 4.268,44
                 </div>
                 <button class="btn btn-primary text-lg" id="exchange-button">Konversi</button>
                 <button class="btn btn-primary text-lg" id="exchange-button"><a href="php/register.php">Lakukan
                         Transaksi!</a></button>
-            </div>
+            </div> -->
         </div>
     </div>
     <!-- footer -->
     <footer class="footer footer-center bg-base-200 text-base-content rounded p-10">
         <nav class="grid grid-flow-col gap-4">
-            <a class="link link-hover">About us</a>
-            <a class="link link-hover">Contact</a>
-            <a class="link link-hover">Jobs</a>
-            <a class="link link-hover">Press kit</a>
+            <a href="#home" class="link link-hover">Homepage</a>
+            <a href="#convert" class="link link-hover">Konversi</a>
+            <a href="#currency" class="link link-hover">Mata Uang</a>
         </nav>
         <nav>
             <div class="grid grid-flow-col gap-4">

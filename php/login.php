@@ -12,10 +12,10 @@ if (isset($_SESSION["status"]) && $_SESSION["status"] == "login") {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST["email"];
+    $username = $_POST["username"];
     $password = $_POST["password"];
 
-    $query = "SELECT * FROM users WHERE email = '$email'";
+    $query = "SELECT * FROM users WHERE username = '$username'";
     $data = mysqli_query($connect, $query) or die(mysqli_error($connect));
 
     $jumlahData = mysqli_num_rows($data);
@@ -24,8 +24,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $row = mysqli_fetch_assoc($data);
 
         if (password_verify($password, $row["password"])) {
-            $_SESSION["email"] = $email;
+            $_SESSION["username"] = $username;
             $_SESSION["status"] = "login";
+            $_SESSION["id_user"] = $row["id_user"];
             if ($row["user_role"] == "Admin") {
                 $_SESSION["role"] = "Admin";
                 header("Location: dashboard.php");
@@ -36,12 +37,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 exit;
             }
         } else {
-            $_SESSION['error_message'] = "Email atau password salah.";
+            $_SESSION['error_message'] = "username atau password salah.";
             header("Location: login.php");
             exit;
         }
     } else {
-        $_SESSION['error_message'] = "Email atau password salah.";
+        $_SESSION['error_message'] = "username atau password salah.";
         header("Location: login.php");
         exit;
     }
@@ -92,9 +93,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </h1>
                     <form class="space-y-4 md:space-y-6" action="login.php" method="post">
                         <div>
-                            <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your
-                                email</label>
-                            <input type="email" name="email" id="email"
+                            <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your
+                                username</label>
+                            <input type="username" name="username" id="username"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="name@company.com" required="">
                         </div>

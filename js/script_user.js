@@ -1,22 +1,3 @@
-// const hamburger = document.getElementById("menu");
-// const navbarNav = document.getElementById("nav");
-
-// hamburger.onclick = () => {
-//   navbarNav.classList.toggle("active");
-// };
-
-// document.addEventListener("click", (e) => {
-//   if (!hamburger.contains(e.target) && !navbarNav.contains(e.target)) {
-//     navbarNav.classList.remove("active");
-//   }
-// });
-
-// const hamburgerMenu = document.getElementById("hamburger");
-// const dropDown = document.getElementById("sidebar");
-
-// hamburgerMenu.addEventListener("click", () => {
-//   dropDown.classList.toggle("hidden");
-// });
 const currencySelect = document.getElementById("currency-select");
 const currencyFlag = document.getElementById("currency-flag");
 const selectedCurrencyText = document.getElementById("selected-currency");
@@ -61,10 +42,10 @@ const getExchangeRate = () => {
     .then((response) =>
       response.json().then((result) => {
         const exchangeRate = result.conversion_rates["IDR"];
-        const totalExchangeRate = (exchangeRate * amount).toFixed(2);
+        const totalExchangeRate = (exchangeRate * amount).toFixed(0);
 
         // Update the hidden input field with the totalExchangeRate
-        const input = (document.getElementById("total_exchange_rate").value = totalExchangeRate);
+        document.getElementById("total-exchange-rate").value = totalExchangeRate;
 
         const toRupiah = new Intl.NumberFormat("id-ID", {
           style: "currency",

@@ -1,9 +1,38 @@
 <?php
+include "koneksi.php";
 session_start();
 if (empty($_SESSION["role"])) {
     header("Location: login.php");
     exit;
 }
+
+
+if (isset($_POST["transaksi"])) {
+    $nama = $_SESSION["username"];
+    $kode = $_POST['from'];
+    $amount = $_POST['amount'];
+    $totalTransaksi = $_POST['total_exchange_rate'];
+    $tanggal = date("Y-m-d H:i:s");
+    $id_user = $_SESSION['id_user'];
+
+    if ($id_user !== null) {
+        $query = "INSERT INTO transaksi (id_transaksi, matauang_asal, jumlah, total, created_at, id_user) VALUES (NULL, '$kode', '$amount', '$totalTransaksi', '$tanggal', '$id_user')";
+        $data = mysqli_query($connect, $query);
+
+        // Eksekusi query
+        if ($data) {
+            $message = "Transaksi berhasil ditambahkan.";
+        } else {
+            $message = "Transaksi gagal ditambahkan.";
+        }
+    } else {
+        echo "ID pengguna tidak ditemukan. Silakan login.";
+    }
+}
+
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -23,22 +52,16 @@ if (empty($_SESSION["role"])) {
 </head>
 
 <body>
-    <!-- Navbar -->
-    <!-- <nav class="navbar">
-        <a href="#" class="navbar-logo">Money<span>Changer</span></a>
-        <div class="nav" id="nav">
-            <a href="">Home</a>
-            <a href="">About</a>
-            <a href="">Menu</a>
-            <a href="">Contact</a>
-        </div>
-
-        <div class="extra">
-            <a href="" id="search"><i class="fa-solid fa-magnifying-glass"></i></a>
-            <a href="" id="cart"><i class="fa-solid fa-cart-shopping"></i></a>
-            <a href="#" id="menu"><i class="fa-solid fa-bars"></i></a>
-        </div>
-    </nav> -->
+    <?php
+    if ($message) {
+        echo '<div role="alert" class="alert ' . (strpos($message, 'berhasil') !== false ? 'alert-success' : 'alert-error') . ' w-1/4 justify-center mt-5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>' . $message . '</span>
+              </div>';
+    }
+    ?>
 
     <div class="navbar bg-base-100 fixed top-0 z-[99999]">
         <div class="navbar-start">
@@ -114,8 +137,7 @@ if (empty($_SESSION["role"])) {
                     class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
                     <li>
                         <a class="justify-between">
-                            Profile
-                            <span class="badge">New</span>
+                            <?= $_SESSION["username"] ?>
                         </a>
                     </li>
                     <li><a>Settings</a></li>
@@ -129,33 +151,30 @@ if (empty($_SESSION["role"])) {
             <h1
                 class="text-3xl font-bold mt-7 bg-gradient-to-r text-transparent from-blue-500 to-teal-400 bg-clip-text ">
                 Ubah Uang Anda dengan Mudah dan Cepat!</h1>
-            <p class="lg:w-[30rem] lg:text-center xl:text-lg">Kami menyediakan layanan penukaran mata uang yang aman,
+            <p class="lg:w-[30rem] lg:mr-[5rem] lg:text-center xl:text-lg self-center">Kami menyediakan layanan
+                penukaran
+                mata
+                uang yang aman,
                 cepat, dan
                 transparan tanpa
                 biaya tersembunyi. Dapatkan nilai
                 tukar terbaik di pasar dan rasakan kenyamanan transaksi bersama kami.</p>
         </div>
-        <div class="rounded-sm bg-slate-800 p-5  lg:w-1/2">
+        <div class="rounded-sm bg-slate-800 p-5 lg:w-1/2 ">
             <h1 class="text-center font-bold text-xl">Penukaran Mata Uang</h1>
-            <form action="">
+            <form action="user.php" method="post" id="currency-form">
                 <div class="mt-5">
                     <p class="mb-3 text-lg">Masukkan Jumlah</p>
-                    <input class="p-3 w-full rounded-md border" type="number" value="1" min="1" id="amount">
+                    <input class="p-3 w-full rounded-md border" type="number" value="1" min="1" id="amount" name="amount">
                 </div>
-                <div class="flex gap-5 mt-5 w-full justify-between">
+                <div class="flex gap-5 mt-5 justify-between w-full">
                     <div class="currency-dropdown relative">
                         <p class="text-lg">From</p>
-                        <div
-                            class="p-2 rounded-md border w-32 mt-2 text-center flex gap-2 justify-center bg-black relative">
+                        <div class="py-2 rounded-md border lg:w-32 w-28 mt-2 text-center flex gap-2 justify-center bg-black relative sm:w-10">
                             <img src="https://flagsapi.com/US/shiny/32.png" id="currency-flag" alt="Currency Flag">
                             <p class="self-center" id="selected-currency">USD</p>
-                            <select class="bg-black p-2 outline-none opacity-0 absolute top-0 left-0 w-full h-full"
-                                id="currency-select">
-                            </select>
-                            <span
-                                class="dropdown-arrow absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                                ▼
-                            </span>
+                            <select class="bg-black p-2 outline-none opacity-0 absolute top-0 left-0 w-full h-full" id="currency-select" name="from"></select>
+                            <span class="dropdown-arrow absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">▼</span>
                         </div>
                     </div>
                     <div class="self-center mt-6">
@@ -163,21 +182,22 @@ if (empty($_SESSION["role"])) {
                     </div>
                     <div>
                         <p class="text-lg">To</p>
-                        <div class="p-2 rounded-md border w-32 mt-2 bg-black text-center flex gap-2 justify-center">
+                        <div class="p-2 rounded-md border w-32 mt-2 bg-black text-center flex gap-2 justify-center w-full">
                             <img src="https://flagsapi.com/ID/shiny/32.png" alt="IDR Flag">
                             <p class="self-center">IDR</p>
                         </div>
                     </div>
-
+                </div>
+                <div class="flex flex-col gap-5 mt-5">
+                    <div id="loading-message" class="hidden">Sedang mengonversi...</div>
+                    <div class="exchange-rate w-full text-center border p-2 rounded-md" id="result">1 AED = Rp 4.268,44</div>
+                    <button type="button" class="btn btn-primary text-lg" id="exchange-button">Konversi</button>
+                    <button type="submit" class="btn btn-info text-lg" id="transaction-button" name="transaksi">Lakukan Transaksi!</button>
+                    <!-- Hidden input to store the exchange rate -->
+                    <input type="hidden" name="total_exchange_rate" id="total-exchange-rate">
                 </div>
             </form>
-            <div class="flex flex-col gap-5 mt-5">
-                <div id="loading-message" style="display: none;">Sedang mengonversi...</div>
-                <div class="exchange-rate w-full text-center border p-2 rounded-md" id="result">1 AED = Rp 4.268,44
-                </div>
-                <button class="btn btn-primary text-lg" id="exchange-button">Konversi</button>
-                <button class="btn btn-primary text-lg" id="exchange-button"><a href="register.php">Lakukan Transaksi!</a></button>
-            </div>
+
         </div>
     </div>
     <!-- footer -->
@@ -220,8 +240,8 @@ if (empty($_SESSION["role"])) {
             <p>Copyright © 2024 - All right reserved by ACME Industries Ltd</p>
         </aside>
     </footer>
-    <script src="js/country_list.js"></script>
-    <script src="js/script.js"></script>
+    <script src="../js/country_list.js"></script>
+    <script src="../js/script_user.js"></script>
 </body>
 
 </html>
