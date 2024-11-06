@@ -6,6 +6,12 @@ if (empty($_SESSION["role"])) {
     exit;
 }
 
+$id_user = $_SESSION['id_user'];
+$cart = "SELECT * FROM transaksi WHERE id_user = $id_user";
+$data = mysqli_query($connect, $cart);
+$jumlahItem = mysqli_num_rows($data);
+$totalHarga = 0;
+
 
 if (isset($_POST["transaksi"])) {
     $nama = $_SESSION["username"];
@@ -13,13 +19,11 @@ if (isset($_POST["transaksi"])) {
     $amount = $_POST['amount'];
     $totalTransaksi = $_POST['total_exchange_rate'];
     $tanggal = date("Y-m-d H:i:s");
-    $id_user = $_SESSION['id_user'];
 
     if ($id_user !== null) {
         $query = "INSERT INTO transaksi (id_transaksi, matauang_asal, jumlah, total, created_at, id_user) VALUES (NULL, '$kode', '$amount', '$totalTransaksi', '$tanggal', '$id_user')";
         $data = mysqli_query($connect, $query);
 
-        // Eksekusi query
         if ($data) {
             $message = "Transaksi berhasil ditambahkan.";
         } else {
@@ -109,42 +113,73 @@ if (isset($_POST["transaksi"])) {
                                 stroke-width="2"
                                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                        <span class="badge badge-sm indicator-item">8</span>
+                        <span class="badge badge-sm indicator-item"><?= $jumlahItem ?></span>
                     </div>
                 </div>
                 <div
                     tabindex="0"
-                    class="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-52 shadow">
+                    class="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-96 shadow">
                     <div class="card-body">
-                        <span class="text-lg font-bold">8 Items</span>
-                        <span class="text-info">Subtotal: $999</span>
+                        <span class="text-lg font-bold"><?= $jumlahItem ?> Items</span>
+                        <div class="item-container" style="max-height: 200px; overflow-y: auto;">
+                            <?php
+                            while ($row = mysqli_fetch_assoc($data)) {
+                                $totalHarga += $row['total'];
+                            ?>
+                                <div class="divider"></div>
+                                <div class="flex justify-between">
+                                    <table>
+                                        <tr>
+                                            <td class="pe-5 font-bold">Mata Uang</td>
+                                            <td><?= $row["matauang_asal"] ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pe-5 font-bold">Jumlah</td>
+                                            <td><?= $row["jumlah"] ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pe-5 font-bold">Harga</td>
+                                            <td><?= "Rp. " . number_format($row['total'], 0, ',', '.');  ?></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            <?php
+                            }
+                            ?>
+                        </div>
+
+                        <span class="text-info">Subtotal: <?= "Rp. " . number_format($totalHarga, 0, ',', '.'); ?></span>
                         <div class="card-actions">
-                            <button class="btn btn-primary btn-block">View cart</button>
+                            <button class="btn btn-primary btn-block">
+                                <a href="cart.php?id_user=<?= $_SESSION['id_user'] ?>">View cart</a>
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-                    <div class="w-10 rounded-full">
-                        <img
-                            alt="Tailwind CSS Navbar component"
-                            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-                    </div>
-                </div>
-                <ul
-                    tabindex="0"
-                    class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-                    <li>
-                        <a class="justify-between">
-                            <?= $_SESSION["username"] ?>
-                        </a>
-                    </li>
-                    <li><a>Settings</a></li>
-                    <li><a href="logout.php">Logout</a></li>
-                </ul>
+
             </div>
         </div>
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    <img
+                        alt="Tailwind CSS Navbar component"
+                        src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                </div>
+            </div>
+            <ul
+                tabindex="0"
+                class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                <li>
+                    <a class="justify-between">
+                        <?= $_SESSION["username"] ?>
+                    </a>
+                </li>
+                <li><a>Settings</a></li>
+                <li><a href="logout.php">Logout</a></li>
+            </ul>
+        </div>
+    </div>
     </div>
     <div class="p-12 flex flex-col gap-5 md:flex-row mt-9" id="convert">
         <div class="flex flex-col gap-5 self-center mb-10 lg:w-1/2">
