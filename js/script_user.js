@@ -41,7 +41,10 @@ const getExchangeRate = () => {
   fetch(URL)
     .then((response) =>
       response.json().then((result) => {
-        const exchangeRate = result.conversion_rates["IDR"];
+        const exchangeRate = result.conversion_rates["IDR"].toFixed(0);
+
+        // Store exchange rate in localStorage
+        localStorage.setItem("exchangeRate", exchangeRate);
         const totalExchangeRate = (exchangeRate * amount).toFixed(0);
 
         // Update the hidden input field with the totalExchangeRate

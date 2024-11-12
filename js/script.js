@@ -52,7 +52,6 @@ currencySelect.addEventListener("change", function () {
 });
 
 currencySelect.dispatchEvent(new Event("change"));
-
 const getExchangeRate = () => {
   loadingMessage.style.display = "block";
   const URL = `https://v6.exchangerate-api.com/v6/0c98421abcccf6922c36d86f/latest/${convertFrom}`;
@@ -60,11 +59,12 @@ const getExchangeRate = () => {
   fetch(URL)
     .then((response) =>
       response.json().then((result) => {
-        const exchangeRate = result.conversion_rates["IDR"];
-        const totalExchangeRate = (exchangeRate * amount).toFixed(2);
+        const exchangeRate = result.conversion_rates["IDR"].toFixed(0);
 
-        // Update the hidden input field with the totalExchangeRate
-        const input = (document.getElementById("total_exchange_rate").value = totalExchangeRate);
+        // Store exchange rate in localStorage
+        localStorage.setItem("exchangeRate", exchangeRate);
+
+        const totalExchangeRate = (exchangeRate * amount).toFixed(0);
 
         const toRupiah = new Intl.NumberFormat("id-ID", {
           style: "currency",

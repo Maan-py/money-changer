@@ -1,19 +1,19 @@
 <?php
 include "koneksi.php";
 session_start();
-if (empty($_SESSION["role"])) {
+if (empty($_SESSION["role"]) || $_SESSION["role"] != "User") {
     header("Location: login.php");
     exit;
 }
 
 $id_user = $_SESSION['id_user'];
 $cart = "SELECT * FROM transaksi WHERE id_user = $id_user";
-$data = mysqli_query($connect, $cart);
-$jumlahItem = mysqli_num_rows($data);
+$dataCart = mysqli_query($connect, $cart);
+$jumlahItem = mysqli_num_rows($dataCart);
 $totalHarga = 0;
 
 
-if (isset($_POST["transaksi"])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nama = $_SESSION["username"];
     $kode = $_POST['from'];
     $amount = $_POST['amount'];
@@ -24,8 +24,16 @@ if (isset($_POST["transaksi"])) {
         $query = "INSERT INTO transaksi (id_transaksi, matauang_asal, jumlah, total, created_at, id_user) VALUES (NULL, '$kode', '$amount', '$totalTransaksi', '$tanggal', '$id_user')";
         $data = mysqli_query($connect, $query);
 
+        if (!$data) {
+            die("Error pada query INSERT: " . mysqli_error($connect));
+        }
+
+
         if ($data) {
             $message = "Transaksi berhasil ditambahkan.";
+            // Redirect ke halaman yang sama dengan metode GET setelah insert
+            header("Location: user.php?message=" . urlencode($message));
+            exit;
         } else {
             $message = "Transaksi gagal ditambahkan.";
         }
@@ -57,13 +65,14 @@ if (isset($_POST["transaksi"])) {
 
 <body>
     <?php
+    $message = isset($_GET['message']) ? $_GET['message'] : '';
     if ($message) {
-        echo '<div role="alert" class="alert ' . (strpos($message, 'berhasil') !== false ? 'alert-success' : 'alert-error') . ' w-1/4 justify-center mt-5">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>' . $message . '</span>
-              </div>';
+        echo '<div role="alert" class="alert fixed top-15 ' . (strpos($message, 'berhasil') !== false ? 'alert-success' : 'alert-error') . ' w-1/4 justify-center mt-[2rem]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>' . htmlspecialchars($message) . '</span>
+          </div>';
     }
     ?>
 
@@ -77,26 +86,13 @@ if (isset($_POST["transaksi"])) {
                             d="M4 6h16M4 12h16M4 18h7" />
                     </svg>
                 </div>
-                <ul tabindex="0"
-                    class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow xl:hidden "
-                    id="sidebar">
-                    <li><a>Homepage</a></li>
-                    <li><a>Portfolio</a></li>
-                    <li><a>About</a></li>
-                </ul>
             </div>
             <!-- Navbar untuk xl dan lebih besar -->
 
             <a
                 class="btn btn-ghost text-xl bg-gradient-to-r text-transparent from-blue-500 to-teal-400 bg-clip-text ">MoneyChanger</a>
         </div>
-        <div class="navbar-center">
-            <ul class="menu hidden xl:block xl:flex xl:flex-row">
-                <li><a>Homepage</a></li>
-                <li><a>Portfolio</a></li>
-                <li><a>About</a></li>
-            </ul>
-        </div>
+
         <div class="navbar-end">
             <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
@@ -123,7 +119,7 @@ if (isset($_POST["transaksi"])) {
                         <span class="text-lg font-bold"><?= $jumlahItem ?> Items</span>
                         <div class="item-container" style="max-height: 200px; overflow-y: auto;">
                             <?php
-                            while ($row = mysqli_fetch_assoc($data)) {
+                            while ($row = mysqli_fetch_assoc($dataCart)) {
                                 $totalHarga += $row['total'];
                             ?>
                                 <div class="divider"></div>
@@ -175,7 +171,6 @@ if (isset($_POST["transaksi"])) {
                         <?= $_SESSION["username"] ?>
                     </a>
                 </li>
-                <li><a>Settings</a></li>
                 <li><a href="logout.php">Logout</a></li>
             </ul>
         </div>
@@ -237,12 +232,6 @@ if (isset($_POST["transaksi"])) {
     </div>
     <!-- footer -->
     <footer class="footer footer-center bg-base-200 text-base-content rounded p-10">
-        <nav class="grid grid-flow-col gap-4">
-            <a class="link link-hover">About us</a>
-            <a class="link link-hover">Contact</a>
-            <a class="link link-hover">Jobs</a>
-            <a class="link link-hover">Press kit</a>
-        </nav>
         <nav>
             <div class="grid grid-flow-col gap-4">
                 <a>

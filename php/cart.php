@@ -2,8 +2,8 @@
 include 'koneksi.php';
 session_start();
 
-if (!isset($_SESSION['id_user'])) {
-    header('Location: login.php');
+if (empty($_SESSION["role"]) || $_SESSION["role"] != "User") {
+    header("Location: login.php");
     exit;
 }
 
@@ -21,13 +21,26 @@ $result = mysqli_query($connect, $query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Responsive Shopping Cart</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
 
-<body class="bg-gray-900 text-gray-200">
-
+<body class="bg-gray-900 text-gray-200 h-screen">
+    <?php
+    $message = isset($_GET['message']) ? $_GET['message'] : '';
+    if ($message) {
+        echo '<div role="alert" class="alert fixed top-15 ' . (strpos($message, 'berhasil') !== false ? 'alert-success' : 'alert-error') . ' w-1/4 justify-center mt-[2rem]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>' . htmlspecialchars($message) . '</span>
+          </div>';
+    }
+    ?>
     <div class="container mx-auto p-6">
         <h2 class="text-2xl font-semibold mb-6">Shopping Cart</h2>
+
 
         <!-- Cart Items and Order Summary -->
         <div class="grid lg:grid-cols-3 gap-8">
@@ -535,68 +548,185 @@ $result = mysqli_query($connect, $query);
                             $code =  'Unknown';
                             break;
                     }
+
+                    $totalHarga = 0;
                 ?>
 
-                    <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
-                        <div class="flex items-center">
-                            <div class="w-12 h-12 bg-gray-700 rounded-lg mr-4 flex justify-center items-center  ">
+                    <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg item" id="transaction-<?= $row["id_transaksi"] ?>" data-id="<?= $row["id_transaksi"] ?>" data-total="<?= $row['total'] ?>" data-id="<?= $row['id_transaksi'] ?>">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" checked="checked" name="check" class="checkbox checkbox-primary price-checkbox" data-price="<?= $row['total'] ?>" />
+                            <div class="w-12 h-12 bg-gray-700 rounded-lg mr-4 flex justify-center items-center">
                                 <img src="https://flagsapi.com/<?= $code ?>/shiny/32.png" alt="">
                             </div>
                             <div>
                                 <p><?= $row['matauang_asal'] ?></p>
-                                <p class="text-gray-400"><?= "Rp. " . number_format($row['total'], 0, ',', '.'); ?></p>
+                                <p class="text-gray-400 total-price" id="total-harga"><?= "Rp. " . number_format($row['total'], 0, ',', '.'); ?></p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-4">
-                            <button class="px-2 py-1 bg-gray-700 rounded text-gray-300">-</button>
-                            <span><?= $row['jumlah'] ?></span>
-                            <button class="px-2 py-1 bg-gray-700 rounded text-gray-300">+</button>
-                            <button class="text-red-500 hover:text-red-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg></button>
+                            <button class="px-2 py-1 bg-gray-700 rounded text-gray-300 minus-btn">-</button>
+                            <span class="jumlah"><?= $row['jumlah'] ?></span>
+                            <button class="px-2 py-1 bg-gray-700 rounded text-gray-300 add-btn">+</button>
+                            <a href="delete.php?id=<?= $row['id_transaksi'] ?>"><button class="text-red-500 hover:text-red-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                            </a></button>
                         </div>
                     </div>
+
                 <?php
                 }
                 ?>
             </div>
 
             <!-- Order Summary -->
-            <div class="p-6 bg-gray-800 rounded-lg">
+            <div class="p-6 bg-gray-800 rounded-lg h-96">
                 <h3 class="text-xl font-semibold mb-4">Order summary</h3>
                 <div class="space-y-2">
                     <div class="flex justify-between">
                         <span>Original price</span>
-                        <span>$6,592.00</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>Savings</span>
-                        <span class="text-green-500">-$299.00</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>Store Pickup</span>
-                        <span>$99</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>Tax</span>
-                        <span>$799</span>
+                        <span id="total-price">$6,592.00</span>
                     </div>
                     <div class="flex justify-between font-semibold text-lg mt-4">
                         <span>Total</span>
-                        <span>$7,191.00</span>
+                        <span id="final-total">$7,191.00</span>
                     </div>
                 </div>
 
                 <!-- Buttons -->
                 <div class="mt-6 flex space-x-4">
-                    <button class="flex-1 py-2 px-4 bg-gray-700 rounded-lg text-gray-300">Continue Shopping</button>
+                    <button class="flex-1 py-2 px-4 bg-gray-700 rounded-lg text-gray-300">
+                        <a href="user.php">Kembali</a>
+                    </button>
                     <button class="flex-1 py-2 px-4 bg-blue-600 rounded-lg text-white">Proceed to Checkout</button>
                 </div>
             </div>
 
         </div>
     </div>
+    <script>
+        function updateDatabase(transactionId, newQuantity) {
+            const totalPrice = document.querySelector(`#transaction-${transactionId} .total-price`);
 
+            // Cek apakah elemen ada
+            if (totalPrice) {
+                // Mengambil nilai total harga yang sudah diformat (Rp. xxx,xxx)
+                const unformattedPrice = parseFloat(totalPrice.textContent.replace('Rp. ', '').replace(/\./g, '').replace(',', '.'));
+
+                fetch('update_jumlah.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: `id=${transactionId}&quantity=${newQuantity}&totalharga=${unformattedPrice}`
+                    })
+                    .then(response => {
+                        // Pastikan respons adalah JSON
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success) {
+                            console.error('Error updating database:', data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            } else {
+                console.error(`Total price element for transaction ${transactionId} not found.`);
+            }
+        }
+
+
+        // JavaScript to handle real-time price update
+        const checkboxes = document.querySelectorAll('.price-checkbox');
+        const totalPriceElement = document.getElementById('total-price');
+        const finalTotalElement = document.getElementById('final-total');
+        const totalHarga = document.querySelectorAll('.total-price');
+
+
+        // Function to calculate and display total price
+        function calculateTotal() {
+            let total = 0;
+
+            checkboxes.forEach((checkbox) => {
+                if (checkbox.checked) {
+                    // Ambil harga per item sesuai dengan jumlahnya
+                    const item = checkbox.closest('.item');
+                    const jumlah = parseInt(item.querySelector('.jumlah').textContent);
+                    const price = localStorage.getItem('exchangeRate');
+                    total += price * jumlah;
+                }
+            });
+
+            // Format and display total price
+            totalPriceElement.textContent = `Rp. ${total.toLocaleString('id-ID')}`;
+
+            // Assuming you have other charges or tax to calculate final total
+            let finalTotal = total;
+            finalTotalElement.textContent = `Rp. ${finalTotal.toLocaleString('id-ID')}`;
+        }
+
+        // Add event listener to checkboxes
+        checkboxes.forEach((checkbox) => {
+            checkbox.addEventListener('change', calculateTotal);
+        });
+
+        // Initial calculation on page load
+        calculateTotal();
+        // DOM content loaded for item operations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ambil semua elemen item
+            document.querySelectorAll('.item').forEach(item => {
+                const minusBtn = item.querySelector('.minus-btn');
+                const addBtn = item.querySelector('.add-btn');
+                const jumlahElement = item.querySelector('.jumlah');
+                const totalPriceElement = item.querySelector('.total-price');
+                const dataTotal = localStorage.getItem('exchangeRate');
+                const transactionId = item.getAttribute('data-id'); // Pastikan setiap .item memiliki data-id
+
+                // Fungsi untuk memperbarui harga per item dan total harga keseluruhan
+                function updateTotalPrice() {
+                    const jumlah = parseInt(jumlahElement.textContent);
+                    const newTotal = dataTotal * jumlah;
+                    totalPriceElement.textContent = "Rp. " + newTotal.toLocaleString('id-ID', {
+                        minimumFractionDigits: 0
+                    });
+
+                    // Hitung ulang total keseluruhan
+                    calculateTotal();
+                }
+
+                // Event listener untuk tombol minus
+                minusBtn.addEventListener('click', function() {
+                    let jumlah = parseInt(jumlahElement.textContent);
+                    if (jumlah > 1) {
+                        jumlah -= 1;
+                        jumlahElement.textContent = jumlah;
+                        updateTotalPrice();
+
+                        // Panggil fungsi untuk memperbarui database
+                        updateDatabase(transactionId, jumlah);
+                    }
+                });
+
+                // Event listener untuk tombol plus
+                addBtn.addEventListener('click', function() {
+                    let jumlah = parseInt(jumlahElement.textContent);
+                    jumlah += 1;
+                    jumlahElement.textContent = jumlah;
+                    updateTotalPrice();
+
+                    // Panggil fungsi untuk memperbarui database
+                    updateDatabase(transactionId, jumlah);
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

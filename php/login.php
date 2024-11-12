@@ -37,12 +37,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 exit;
             }
         } else {
-            $_SESSION['error_message'] = "username atau password salah.";
+            $message = "username atau password salah.";
             header("Location: login.php");
             exit;
         }
     } else {
-        $_SESSION['error_message'] = "username atau password salah.";
+        $message = "username atau password salah.";
         header("Location: login.php");
         exit;
     }
@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body class="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 flex-col">
     <?php
-    if (isset($_SESSION['error_message'])) {
+    if (isset($message)) {
         echo '<div role="alert" class="alert alert-error w-1/4 fixed top-2 justify-center mt-5" id="pesan_gagal">
                 <svg id="silang"
                     xmlns="http://www.w3.org/2000/svg"
@@ -77,9 +77,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     stroke-width="2"
                     d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                <span>' . $_SESSION['error_message'] . '</span>
-                </div>';
-        unset($_SESSION['error_message']);
+                <span>' . $message . '</span>
+            </div>';
     }
     ?>
     <section class="w-full max-w-md">
