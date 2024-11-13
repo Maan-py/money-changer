@@ -23,6 +23,9 @@ $result = mysqli_query($connect, $query);
     <title>Responsive Shopping Cart</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript"
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="SB-Mid-client-dtlm5vRcuNMudMJO"></script>
 
 </head>
 
@@ -559,7 +562,7 @@ $result = mysqli_query($connect, $query);
                                 <img src="https://flagsapi.com/<?= $code ?>/shiny/32.png" alt="">
                             </div>
                             <div>
-                                <p><?= $row['matauang_asal'] ?></p>
+                                <p id="currency-code"><?= $row['matauang_asal'] ?></p>
                                 <p class="text-gray-400 total-price" id="total-harga"><?= "Rp. " . number_format($row['total'], 0, ',', '.'); ?></p>
                             </div>
                         </div>
@@ -581,7 +584,7 @@ $result = mysqli_query($connect, $query);
             </div>
 
             <!-- Order Summary -->
-            <div class="p-6 bg-gray-800 rounded-lg h-96">
+            <div class="p-6 bg-gray-800 rounded-lg h-96 ">
                 <h3 class="text-xl font-semibold mb-4">Order summary</h3>
                 <div class="space-y-2">
                     <div class="flex justify-between">
@@ -596,14 +599,17 @@ $result = mysqli_query($connect, $query);
 
                 <!-- Buttons -->
                 <div class="mt-6 flex space-x-4">
-                    <button class="flex-1 py-2 px-4 bg-gray-700 rounded-lg text-gray-300">
-                        <a href="user.php">Kembali</a>
+                    <button class="flex-1 py-2 px-4 bg-gray-700 rounded-lg relative hover:bg-gray-600">
+                        <a href="user.php" class="absolute inset-0 flex justify-center items-center">Kembali</a>
                     </button>
-                    <button class="flex-1 py-2 px-4 bg-blue-600 rounded-lg text-white">Proceed to Checkout</button>
+                    <button class="btn btn-primary btn-block relative flex-1 py-2 px-4" id="pay-button">
+                        <!-- <a href="" class="absolute inset-0 flex justify-center items-center" id="pay-button">Checkout</a> -->
+                        CheckOut
+                    </button>
                 </div>
             </div>
-
         </div>
+
     </div>
     <script>
         function updateDatabase(transactionId, newQuantity) {
@@ -655,10 +661,18 @@ $result = mysqli_query($connect, $query);
 
             checkboxes.forEach((checkbox) => {
                 if (checkbox.checked) {
+
                     // Ambil harga per item sesuai dengan jumlahnya
                     const item = checkbox.closest('.item');
                     const jumlah = parseInt(item.querySelector('.jumlah').textContent);
-                    const price = localStorage.getItem('exchangeRate');
+
+                    // Ambil kode mata uang dari elemen yang ada di dalam item
+                    const currencyCodeElement = item.querySelector('#currency-code'); // Pastikan ini selector yang tepat
+                    const convertFrom = currencyCodeElement ? currencyCodeElement.textContent : 'defaultCurrency'; // Ganti 'defaultCurrency' dengan mata uang default jika tidak ada
+
+                    // Ambil nilai tukar berdasarkan mata uang yang digunakan
+                    const price = localStorage.getItem(`exchangeRate_${convertFrom}`);
+
                     total += price * jumlah;
                 }
             });
@@ -686,7 +700,18 @@ $result = mysqli_query($connect, $query);
                 const addBtn = item.querySelector('.add-btn');
                 const jumlahElement = item.querySelector('.jumlah');
                 const totalPriceElement = item.querySelector('.total-price');
-                const dataTotal = localStorage.getItem('exchangeRate');
+                // Ambil kode mata uang dari elemen yang ada di DOM
+                const currencyCodeElement = item.querySelector('#currency-code'); // Pastikan ini selector yang tepat
+                const convertFrom = currencyCodeElement ? currencyCodeElement.textContent : 'defaultCurrency'; // Ganti 'defaultCurrency' dengan mata uang default jika tidak ada
+
+                // Ambil nilai tukar berdasarkan mata uang yang digunakan
+                const dataTotal = localStorage.getItem(`exchangeRate_${convertFrom}`);
+                // Ganti 'defaultCurrency' dengan mata uang default jika tidak ada
+
+
+
+
+
                 const transactionId = item.getAttribute('data-id'); // Pastikan setiap .item memiliki data-id
 
                 // Fungsi untuk memperbarui harga per item dan total harga keseluruhan
@@ -724,6 +749,40 @@ $result = mysqli_query($connect, $query);
                     // Panggil fungsi untuk memperbarui database
                     updateDatabase(transactionId, jumlah);
                 });
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        // For example trigger on button clicked, or any time you need
+        var payButton = document.getElementById('pay-button');
+        payButton.addEventListener('click', function() {
+
+            // Trigger snap popup. @TODO: Replace TRANSACTION_TOKEN_HERE with your transaction token.
+            // Also, use the embedId that you defined in the div above, here.
+            let snapToken = "<?= $_SESSION['snapToken'] ?>";
+
+            window.snap.pay(snapToken, {
+                // embedId: 'snap-container',
+                onSuccess: function(result) {
+                    /* You may add your own implementation here */
+                    alert("payment success!");
+                    console.log(result);
+                },
+                onPending: function(result) {
+                    /* You may add your own implementation here */
+                    alert("wating your payment!");
+                    console.log(result);
+                },
+                onError: function(result) {
+                    /* You may add your own implementation here */
+                    alert("payment failed!");
+                    console.log(result);
+                },
+                onClose: function() {
+                    /* You may add your own implementation here */
+                    alert('you closed the popup without finishing the payment');
+                }
             });
         });
     </script>

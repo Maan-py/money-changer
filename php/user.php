@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $tanggal = date("Y-m-d H:i:s");
 
     if ($id_user !== null) {
-        $query = "INSERT INTO transaksi (id_transaksi, matauang_asal, jumlah, total, created_at, id_user) VALUES (NULL, '$kode', '$amount', '$totalTransaksi', '$tanggal', '$id_user')";
+        $query = "INSERT INTO transaksi (id_transaksi, matauang_asal, jumlah, total, created_at, status_pembayaran, id_user) VALUES (NULL, '$kode', '$amount', '$totalTransaksi', '$tanggal', 'Belum Lunas' ,'$id_user')";
         $data = mysqli_query($connect, $query);
 
         if (!$data) {
@@ -146,8 +146,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                         <span class="text-info">Subtotal: <?= "Rp. " . number_format($totalHarga, 0, ',', '.'); ?></span>
                         <div class="card-actions">
-                            <button class="btn btn-primary btn-block">
-                                <a href="cart.php?id_user=<?= $_SESSION['id_user'] ?>">View cart</a>
+                            <button class="btn btn-primary btn-block relative">
+                                <a href="cart.php?id_user=<?= $_SESSION['id_user'] ?>" class="absolute inset-0 flex justify-center items-center">View cart</a>
                             </button>
                         </div>
                     </div>

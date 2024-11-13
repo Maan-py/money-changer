@@ -62,8 +62,8 @@ const getExchangeRate = () => {
         const exchangeRate = result.conversion_rates["IDR"].toFixed(0);
 
         // Store exchange rate in localStorage
-        localStorage.setItem("exchangeRate", exchangeRate);
-
+        // Simpan nilai tukar untuk setiap mata uang secara terpisah
+        localStorage.setItem(`exchangeRate_${convertFrom}`, exchangeRate);
         const totalExchangeRate = (exchangeRate * amount).toFixed(0);
 
         const toRupiah = new Intl.NumberFormat("id-ID", {
