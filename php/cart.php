@@ -21,11 +21,11 @@ $result = mysqli_query($connect, $query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Responsive Shopping Cart</title>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript"
         src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="SB-Mid-client-dtlm5vRcuNMudMJO"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
 
 </head>
 
@@ -602,9 +602,9 @@ $result = mysqli_query($connect, $query);
                     <button class="flex-1 py-2 px-4 bg-gray-700 rounded-lg relative hover:bg-gray-600">
                         <a href="user.php" class="absolute inset-0 flex justify-center items-center">Kembali</a>
                     </button>
-                    <button class="btn btn-primary btn-block relative flex-1 py-2 px-4" id="pay-button">
+                    <button id="pay-button" class="btn btn-primary btn-block relative flex-1 py-2 px-4">
                         <!-- <a href="" class="absolute inset-0 flex justify-center items-center" id="pay-button">Checkout</a> -->
-                        CheckOut
+                        Checkout
                     </button>
                 </div>
             </div>
@@ -658,10 +658,12 @@ $result = mysqli_query($connect, $query);
         // Function to calculate and display total price
         function calculateTotal() {
             let total = 0;
+            let hasChecked = false;
+            const payButton = document.getElementById('pay-button');
 
             checkboxes.forEach((checkbox) => {
                 if (checkbox.checked) {
-
+                    hasChecked = true;
                     // Ambil harga per item sesuai dengan jumlahnya
                     const item = checkbox.closest('.item');
                     const jumlah = parseInt(item.querySelector('.jumlah').textContent);
@@ -675,6 +677,7 @@ $result = mysqli_query($connect, $query);
 
                     total += price * jumlah;
                 }
+
             });
 
             // Format and display total price
@@ -683,6 +686,8 @@ $result = mysqli_query($connect, $query);
             // Assuming you have other charges or tax to calculate final total
             let finalTotal = total;
             finalTotalElement.textContent = `Rp. ${finalTotal.toLocaleString('id-ID')}`;
+
+            payButton.disabled = !hasChecked;
         }
 
         // Add event listener to checkboxes
@@ -707,10 +712,6 @@ $result = mysqli_query($connect, $query);
                 // Ambil nilai tukar berdasarkan mata uang yang digunakan
                 const dataTotal = localStorage.getItem(`exchangeRate_${convertFrom}`);
                 // Ganti 'defaultCurrency' dengan mata uang default jika tidak ada
-
-
-
-
 
                 const transactionId = item.getAttribute('data-id'); // Pastikan setiap .item memiliki data-id
 
@@ -752,38 +753,77 @@ $result = mysqli_query($connect, $query);
             });
         });
     </script>
-
-    <script type="text/javascript">
+    <script>
         // For example trigger on button clicked, or any time you need
-        var payButton = document.getElementById('pay-button');
-        payButton.addEventListener('click', function() {
+        var payButton = document.getElementById("pay-button");
+        payButton.addEventListener("click", async function() {
+            let items = []; // Array untuk menyimpan detail produk
+            const checkboxes = document.querySelectorAll("input[type='checkbox']:checked");
 
-            // Trigger snap popup. @TODO: Replace TRANSACTION_TOKEN_HERE with your transaction token.
-            // Also, use the embedId that you defined in the div above, here.
-            let snapToken = "<?= $_SESSION['snapToken'] ?>";
+            checkboxes.forEach((checkbox) => {
+                const item = checkbox.closest(".item");
+                const currencyCodeElement = item.querySelector("#currency-code");
+                const convertFrom = currencyCodeElement ? currencyCodeElement.textContent : "defaultCurrency";
+                const price = localStorage.getItem(`exchangeRate_${convertFrom}`);
+                const jumlah = parseInt(item.querySelector('.jumlah').textContent);
+                const subtotal = price * jumlah; // Hitung subtotal
 
-            window.snap.pay(snapToken, {
-                // embedId: 'snap-container',
-                onSuccess: function(result) {
-                    /* You may add your own implementation here */
-                    alert("payment success!");
-                    console.log(result);
-                },
-                onPending: function(result) {
-                    /* You may add your own implementation here */
-                    alert("wating your payment!");
-                    console.log(result);
-                },
-                onError: function(result) {
-                    /* You may add your own implementation here */
-                    alert("payment failed!");
-                    console.log(result);
-                },
-                onClose: function() {
-                    /* You may add your own implementation here */
-                    alert('you closed the popup without finishing the payment');
-                }
+                // Tambahkan detail produk ke array
+                items.push({
+                    name: convertFrom, // Pastikan ada elemen dengan class 'product-name'
+                    quantity: jumlah,
+                    price: price,
+                    subtotal: subtotal
+                });
             });
+
+            let data = {
+                items: items, // Kirim array detail produk
+                finalTotal: items.reduce((total, item) => total + item.subtotal, 0) // Hitung total akhir
+            };
+
+            try {
+                const url = 'checkout.php?ts=' + new Date().getTime();
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.snapToken) {
+                    // Perbarui snapToken setelah mendapatkan respons
+                    let snapToken = result.snapToken;
+
+                    // Buka form pembayaran dengan snapToken terbaru
+                    window.snap.pay(snapToken, {
+                        onSuccess: async function(result) {
+                            alert("payment success!");
+                            console.log(result);
+                        },
+                        onPending: function(result) {
+                            alert("waiting for your payment!");
+                            console.log(result);
+                        },
+                        onError: function(result) {
+                            alert("payment failed!");
+                            console.log(result);
+                        },
+                        onClose: function() {
+                            alert("you closed the popup without finishing the payment");
+                        },
+                    });
+
+                } else {
+                    console.error("Gagal mendapatkan Snap Token.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
         });
     </script>
 </body>

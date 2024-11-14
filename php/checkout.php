@@ -10,51 +10,53 @@ include 'koneksi.php';
 $id_user = $_SESSION['id_user'];
 
 $sql = "SELECT * FROM transaksi JOIN users ON transaksi.id_user = users.id_user WHERE transaksi.id_user = $id_user";
-
-echo $sql;
 $query = mysqli_query($connect, $sql);
 $row = mysqli_fetch_assoc($query);
 
-
-/*Install Midtrans PHP Library (https://github.com/Midtrans/midtrans-php)
-composer require midtrans/midtrans-php
-                              
-Alternatively, if you are not using **Composer**, you can download midtrans-php library 
-(https://github.com/Midtrans/midtrans-php/archive/master.zip), and then require 
-the file manually.   
-
-require_once dirname(__FILE__) . '/pathofproject/Midtrans.php'; */
+// Install Midtrans PHP Library
 require_once dirname(__FILE__) . '/midtrans-php-master/Midtrans.php';
-
-//SAMPLE REQUEST START HERE
 
 // Set your Merchant Server Key
 \Midtrans\Config::$serverKey = 'SB-Mid-server-UjBAdgfLUC3T81lbwNtCMGYH';
-// Set to Development/Sandbox Environment (default). Set to true for Production Environment (accept real transaction).
 \Midtrans\Config::$isProduction = false;
-// Set sanitization on (default)
 \Midtrans\Config::$isSanitized = true;
-// Set 3DS transaction for credit card to true
 \Midtrans\Config::$is3ds = true;
+
+$jsonData = file_get_contents('php://input'); // Mengambil data JSON mentah dari request body
+$data = json_decode($jsonData, true);
+
+// Cek apakah data yang diperlukan ada
+if (!isset($data['finalTotal']) || !isset($data['items'])) {
+    echo json_encode(['error' => 'Data tidak lengkap.']);
+    exit;
+}
+
+// Siapkan item_details berdasarkan data yang diterima
+$item_details = [];
+foreach ($data['items'] as $item) {
+    $item_details[] = array(
+        'id' => $row['id_transaksi'],
+        'price' => $item['price'],
+        'matauang' => $row["matauang_asal"],
+        'quantity' => $item['quantity'],
+        'name' => $item['name'],
+    );
+}
 
 $params = array(
     'transaction_details' => array(
         'order_id' => rand(),
-        'gross_amount' => $row['total'],
+        'gross_amount' => $data['finalTotal'],
     ),
-    'item_details' => array(
-        array(
-            'id' => $row['id_transaksi'],
-            'price' => $row['total'],
-            'matauang' => $row["matauang_asal"],
-            'quantity' => $row['jumlah'],
-            'name' => $row['username'],
-        ),
-    ),
+    'item_details' => $item_details,
     'customer_details' => array(
-        'username' => $username,
+        'first_name' => $row['username'], // Pastikan username diambil dari $row
     ),
 );
 
 $snapToken = \Midtrans\Snap::getSnapToken($params);
 $_SESSION['snapToken'] = $snapToken;
+
+// Kembalikan respons JSON
+header('Content-Type: application/json');
+echo json_encode(['snapToken' => $snapToken]);
