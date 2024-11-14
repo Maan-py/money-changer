@@ -802,19 +802,97 @@ $result = mysqli_query($connect, $query);
                     // Buka form pembayaran dengan snapToken terbaru
                     window.snap.pay(snapToken, {
                         onSuccess: async function(result) {
-                            alert("payment success!");
+                            alert("Payment success!");
                             console.log(result);
+
+                            let dataTransaction = {
+                                transaction_id: result.transaction_id,
+                                status_pembayaran: "Berhasil",
+                            };
+
+                            try {
+                                // Kirim data transaksi ke update_transaksi.php untuk pembayaran berhasil
+                                const response = await fetch("update_transaksi.php", {
+                                    method: "POST",
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(dataTransaction)
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Gagal mengupdate status pembayaran');
+                                }
+
+                                const responseData = await response.json();
+                                console.log("Update berhasil:", responseData);
+
+                            } catch (error) {
+                                console.log("Error mengupdate status pembayaran:", error);
+                            }
                         },
-                        onPending: function(result) {
-                            alert("waiting for your payment!");
+                        onPending: async function(result) {
+                            alert("Waiting for your payment!");
                             console.log(result);
+
+                            let dataTransaction = {
+                                transaction_id: result.transaction_id,
+                                status_pembayaran: 'Pending', // Status pending
+                            };
+
+                            try {
+                                // Kirim data transaksi ke update_transaksi.php untuk pembayaran pending
+                                const response = await fetch("update_transaksi.php", {
+                                    method: "POST",
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(dataTransaction)
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Gagal mengupdate status pembayaran (pending)');
+                                }
+
+                                const responseData = await response.json();
+                                console.log("Update pending berhasil:", responseData);
+
+                            } catch (error) {
+                                console.log("Error mengupdate status pembayaran (pending):", error);
+                            }
                         },
-                        onError: function(result) {
-                            alert("payment failed!");
+                        onError: async function(result) {
+                            alert("Payment failed!");
                             console.log(result);
+
+                            let dataTransaction = {
+                                transaction_id: result.transaction_id,
+                                status_pembayaran: 'Gagal', // Status gagal
+                            };
+
+                            try {
+                                // Kirim data transaksi ke update_transaksi.php untuk pembayaran gagal
+                                const response = await fetch("update_transaksi.php", {
+                                    method: "POST",
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(dataTransaction)
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Gagal mengupdate status pembayaran (gagal)');
+                                }
+
+                                const responseData = await response.json();
+                                console.log("Update gagal berhasil:", responseData);
+
+                            } catch (error) {
+                                console.log("Error mengupdate status pembayaran (gagal):", error);
+                            }
                         },
                         onClose: function() {
-                            alert("you closed the popup without finishing the payment");
+                            alert("You closed the popup without finishing the payment");
                         },
                     });
 

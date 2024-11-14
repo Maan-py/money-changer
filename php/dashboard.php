@@ -2,11 +2,11 @@
 include "koneksi.php";
 
 // Perbarui status pembayaran jika lebih dari 15 menit
-$query = "UPDATE transaksi 
-          SET status_pembayaran = CASE 
-              WHEN TIMESTAMPDIFF(MINUTE, created_at, NOW()) > 15 AND status_pembayaran = 'Belum Lunas' THEN 'Kadaluwarsa'
-              ELSE status_pembayaran
-          END";
+// $query = "UPDATE transaksi 
+//           SET status_pembayaran = CASE 
+//               WHEN TIMESTAMPDIFF(MINUTE, created_at, NOW()) > 15 AND status_pembayaran = 'Belum Lunas' THEN 'Kadaluwarsa'
+//               ELSE status_pembayaran
+//           END";
 mysqli_query($connect, $query);
 
 session_start();
