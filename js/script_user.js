@@ -1,3 +1,4 @@
+let clicked = false;
 const currencySelect = document.getElementById("currency-select");
 const currencyFlag = document.getElementById("currency-flag");
 const selectedCurrencyText = document.getElementById("selected-currency");
@@ -67,7 +68,17 @@ const getExchangeRate = () => {
 };
 
 // Call this function when the exchange button is clicked
+
 exchangeButton.addEventListener("click", function (e) {
+  clicked = true;
+
   e.preventDefault();
   getExchangeRate();
+});
+
+document.getElementById("transaction-button").addEventListener("click", function (e) {
+  e.preventDefault();
+  if (clicked === false) {
+    alert("Harap klik dulu konversi terlebih dahulu");
+  }
 });

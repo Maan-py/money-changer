@@ -17,6 +17,7 @@
 // hamburgerMenu.addEventListener("click", () => {
 //   dropDown.classList.toggle("hidden");
 // });
+
 const currencySelect = document.getElementById("currency-select");
 const currencyFlag = document.getElementById("currency-flag");
 const selectedCurrencyText = document.getElementById("selected-currency");

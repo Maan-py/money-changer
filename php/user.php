@@ -7,7 +7,7 @@ if (empty($_SESSION["role"]) || $_SESSION["role"] != "User") {
 }
 
 $id_user = $_SESSION['id_user'];
-$cart = "SELECT * FROM transaksi WHERE id_user = $id_user";
+$cart = "SELECT * FROM transaksi WHERE id_user = $id_user AND status_pembayaran != 'Berhasil'";
 $dataCart = mysqli_query($connect, $cart);
 $jumlahItem = mysqli_num_rows($dataCart);
 $totalHarga = 0;
@@ -41,7 +41,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "ID pengguna tidak ditemukan. Silakan login.";
     }
 }
-
 
 
 
@@ -90,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <!-- Navbar untuk xl dan lebih besar -->
 
             <a
-                class="btn btn-ghost text-xl bg-gradient-to-r text-transparent from-blue-500 to-teal-400 bg-clip-text ">MoneyChanger</a>
+                class="btn btn-ghost text-xl bg-gradient-to-r text-transparent from-blue-500 to-teal-400 bg-clip-text">MoneyChanger</a>
         </div>
 
         <div class="navbar-end">
@@ -220,7 +219,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <div class="flex flex-col gap-5 mt-5">
                     <div id="loading-message" class="hidden">Sedang mengonversi...</div>
-                    <div class="exchange-rate w-full text-center border p-2 rounded-md" id="result">1 AED = Rp 4.268,44</div>
+                    <div class="exchange-rate w-full text-center border p-2 rounded-md" id="result">1 AED = Rp 4.268, 00</div>
                     <button type="button" class="btn btn-primary text-lg" id="exchange-button">Konversi</button>
                     <button type="submit" class="btn btn-info text-lg" id="transaction-button" name="transaksi">Lakukan Transaksi!</button>
                     <!-- Hidden input to store the exchange rate -->
@@ -265,7 +264,95 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </aside>
     </footer>
     <script src="../js/country_list.js"></script>
-    <script src="../js/script_user.js"></script>
+    <script>
+        const currencySelect = document.getElementById("currency-select");
+        const currencyFlag = document.getElementById("currency-flag");
+        const selectedCurrencyText = document.getElementById("selected-currency");
+        const exchangeButton = document.getElementById("exchange-button");
+        const resultAmount = document.getElementById("result");
+        const loadingMessage = document.getElementById("loading-message");
+        const transactionButton = document.getElementById("transaction-button");
+        let convertFrom = document.getElementById("currency-select").value;
+        let amount = document.getElementById("amount").value;
+
+        // Event listener untuk perubahan pada dropdown currency-select
+        document.getElementById("currency-select").addEventListener("change", function() {
+            convertFrom = this.value;
+        });
+
+        document.getElementById("amount").addEventListener("input", function() {
+            amount = this.value;
+        });
+
+        Object.entries(countryList).forEach(([currencyCode, {
+            country,
+            code
+        }]) => {
+            const optionTag = `
+      <option value="${currencyCode}" data-flag="https://flagsapi.com/${code}/shiny/32.png">
+          ${country} (${currencyCode})
+      </option>
+  `;
+            currencySelect.insertAdjacentHTML("beforeend", optionTag);
+        });
+
+        currencySelect.addEventListener("change", function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const flagUrl = selectedOption.getAttribute("data-flag");
+            currencyFlag.src = flagUrl;
+            selectedCurrencyText.textContent = selectedOption.value;
+        });
+
+        currencySelect.dispatchEvent(new Event("change"));
+
+        const getExchangeRate = () => {
+            loadingMessage.style.display = "block";
+            const URL = `https://v6.exchangerate-api.com/v6/0c98421abcccf6922c36d86f/latest/${convertFrom}`;
+
+            fetch(URL)
+                .then((response) =>
+                    response.json().then((result) => {
+                        const exchangeRate = result.conversion_rates["IDR"].toFixed(0);
+
+                        // Store exchange rate in localStorage
+                        // Simpan nilai tukar untuk setiap mata uang secara terpisah
+                        localStorage.setItem(`exchangeRate_${convertFrom}`, exchangeRate);
+                        const totalExchangeRate = (exchangeRate * amount).toFixed(0);
+
+                        // Update the hidden input field with the totalExchangeRate
+                        document.getElementById("total-exchange-rate").value = totalExchangeRate;
+
+                        const toRupiah = new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR",
+                        }).format(totalExchangeRate);
+
+                        resultAmount.innerText = `${amount} ${convertFrom} = ${toRupiah}`;
+                        loadingMessage.style.display = "none";
+                    })
+                )
+                .catch((error) => {
+                    console.error("Error fetching exchange rate:", error);
+                    loadingMessage.style.display = "none";
+                });
+        };
+
+        // Call this function when the exchange button is clicked
+        transactionButton.addEventListener("click", function(e) {
+            const totalExchangeRate = document.getElementById("total-exchange-rate").value;
+
+            // Cek apakah totalExchangeRate kosong
+            if (!totalExchangeRate || totalExchangeRate === "") {
+                e.preventDefault(); // Mencegah pengiriman form
+                alert("Silakan lakukan konversi terlebih dahulu.");
+            }
+        });
+        exchangeButton.addEventListener("click", function(e) {
+            e.preventDefault();
+            getExchangeRate();
+        });
+    </script>
+    <!-- <script src="../js/script_user.js"></script> -->
 </body>
 
 </html>

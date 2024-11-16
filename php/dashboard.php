@@ -7,13 +7,14 @@ include "koneksi.php";
 //               WHEN TIMESTAMPDIFF(MINUTE, created_at, NOW()) > 15 AND status_pembayaran = 'Belum Lunas' THEN 'Kadaluwarsa'
 //               ELSE status_pembayaran
 //           END";
-mysqli_query($connect, $query);
-
+// mysqli_query($connect, $query);
 session_start();
-if (empty($_SESSION["role"])) {
-    header("Location: login.php");
+if (empty($_SESSION["role"]) || $_SESSION["role"] != "Admin") {
+    header("Location: user.php");
     exit;
 }
+
+echo $_SESSION["role"];
 
 
 ?>
@@ -27,6 +28,7 @@ if (empty($_SESSION["role"])) {
     <title>Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.13/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
 
 <body class="flex justify-center">
@@ -98,7 +100,7 @@ if (empty($_SESSION["role"])) {
                         <td><?= $result["matauang_asal"] ?></td>
                         <td><?= $result["username"] ?></td>
                         <td><?= $result["jumlah"] ?></td>
-                        <td><?= $result["total"] ?></td>
+                        <td><?= 'Rp. ' . number_format($result["total"], 0, ',', '.') ?></td>
                         <td><?= $result["created_at"] ?></td>
                         <td><?= $result["status_pembayaran"] ?></td>
                         <td>

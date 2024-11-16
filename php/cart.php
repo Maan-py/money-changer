@@ -10,7 +10,7 @@ if (empty($_SESSION["role"]) || $_SESSION["role"] != "User") {
 
 $id_user = $_SESSION['id_user'];
 
-$query = "SELECT * FROM transaksi WHERE id_user = $id_user";
+$query = "SELECT * FROM transaksi WHERE id_user = $id_user AND status_pembayaran != 'Berhasil'";
 $result = mysqli_query($connect, $query);
 ?>
 
@@ -29,7 +29,47 @@ $result = mysqli_query($connect, $query);
 
 </head>
 
-<body class="bg-gray-900 text-gray-200 h-screen">
+<body class="bg-base-100 text-gray-200 h-screen">
+
+    <div class="navbar bg-base-100 fixed top-0 z-[99999]">
+        <div class="navbar-start">
+            <div class="dropdown xl:hidden sm:inherit">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle" id="hamburger">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h7" />
+                    </svg>
+                </div>
+            </div>
+            <!-- Navbar untuk xl dan lebih besar -->
+            <a
+                class="btn btn-ghost text-xl bg-gradient-to-r text-transparent from-blue-500 to-teal-400 bg-clip-text ">Shopping Cart</a>
+        </div>
+        <div class="navbar-end">
+
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                    <div class="w-10 rounded-full">
+                        <img
+                            alt="Tailwind CSS Navbar component"
+                            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                    </div>
+                </div>
+                <ul
+                    tabindex="0"
+                    class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                    <li>
+                        <a class="justify-between">
+                            <?= $_SESSION["username"] ?>
+                        </a>
+                    </li>
+                    <li><a href="logout.php">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <?php
     $message = isset($_GET['message']) ? $_GET['message'] : '';
     if ($message) {
@@ -42,7 +82,7 @@ $result = mysqli_query($connect, $query);
     }
     ?>
     <div class="container mx-auto p-6">
-        <h2 class="text-2xl font-semibold mb-6">Shopping Cart</h2>
+        <h2 class="font-semibold mb-6 text-xl bg-gradient-to-r text-transparent from-blue-500 to-teal-400 bg-clip-text">Shopping Cart</h2>
 
 
         <!-- Cart Items and Order Summary -->
@@ -830,6 +870,8 @@ $result = mysqli_query($connect, $query);
                             } catch (error) {
                                 console.log("Error mengupdate status pembayaran:", error);
                             }
+
+                            location.reload();
                         },
                         onPending: async function(result) {
                             alert("Waiting for your payment!");
@@ -860,6 +902,8 @@ $result = mysqli_query($connect, $query);
                             } catch (error) {
                                 console.log("Error mengupdate status pembayaran (pending):", error);
                             }
+
+                            location.reload();
                         },
                         onError: async function(result) {
                             alert("Payment failed!");
@@ -890,6 +934,8 @@ $result = mysqli_query($connect, $query);
                             } catch (error) {
                                 console.log("Error mengupdate status pembayaran (gagal):", error);
                             }
+
+                            location.reload();
                         },
                         onClose: function() {
                             alert("You closed the popup without finishing the payment");
