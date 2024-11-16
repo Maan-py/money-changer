@@ -14,7 +14,6 @@ if (empty($_SESSION["role"]) || $_SESSION["role"] != "Admin") {
     exit;
 }
 
-echo $_SESSION["role"];
 
 
 ?>
@@ -46,7 +45,7 @@ echo $_SESSION["role"];
             </div>
             <!-- Navbar untuk xl dan lebih besar -->
             <a
-                class="btn btn-ghost text-xl bg-gradient-to-r text-transparent from-blue-500 to-teal-400 bg-clip-text ">Halaman Admin</a>
+                class="btn btn-ghost text-2xl bg-gradient-to-r text-transparent from-blue-500 to-teal-400 bg-clip-text ">Halaman Admin</a>
         </div>
         <div class="navbar-end">
 
@@ -76,7 +75,7 @@ echo $_SESSION["role"];
         <table class="table table-zebra table-lg">
             <!-- head -->
             <thead class="text-lg">
-                <tr>
+                <tr class="text-lg">
                     <th>No</th>
                     <th>Kode</th>
                     <th>Nama</th>

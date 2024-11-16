@@ -222,13 +222,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 .then((result) => {
                     const exchangeRate = result.conversion_rates["IDR"].toFixed(0);
 
-                    // Simpan nilai tukar di localStorage (opsional)
+                    
                     localStorage.setItem(`exchangeRate_${convertFrom}`, exchangeRate);
 
-                    // Menghitung total konversi
+                    
                     const totalExchangeRate = (exchangeRate * amount).toFixed(0);
 
-                    // Format total konversi ke format Rupiah
+                    
                     const toRupiah = new Intl.NumberFormat("id-ID", {
                         style: "currency",
                         currency: "IDR",
