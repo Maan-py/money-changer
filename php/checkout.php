@@ -13,25 +13,21 @@ $sql = "SELECT * FROM transaksi JOIN users ON transaksi.id_user = users.id_user 
 $query = mysqli_query($connect, $sql);
 $row = mysqli_fetch_assoc($query);
 
-// Install Midtrans PHP Library
 require_once dirname(__FILE__) . '/midtrans-php-master/Midtrans.php';
 
-// Set your Merchant Server Key
 \Midtrans\Config::$serverKey = 'SB-Mid-server-UjBAdgfLUC3T81lbwNtCMGYH';
 \Midtrans\Config::$isProduction = false;
 \Midtrans\Config::$isSanitized = true;
 \Midtrans\Config::$is3ds = true;
 
-$jsonData = file_get_contents('php://input'); // Mengambil data JSON mentah dari request body
+$jsonData = file_get_contents('php://input'); 
 $data = json_decode($jsonData, true);
 
-// Cek apakah data yang diperlukan ada
 if (!isset($data['finalTotal']) || !isset($data['items'])) {
     echo json_encode(['error' => 'Data tidak lengkap.']);
     exit;
 }
 
-// Siapkan item_details berdasarkan data yang diterima
 $item_details = [];
 foreach ($data['items'] as $item) {
     $item_details[] = array(

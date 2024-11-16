@@ -62,8 +62,6 @@ const getExchangeRate = () => {
       response.json().then((result) => {
         const exchangeRate = result.conversion_rates["IDR"].toFixed(0);
 
-        // Store exchange rate in localStorage
-        // Simpan nilai tukar untuk setiap mata uang secara terpisah
         localStorage.setItem(`exchangeRate_${convertFrom}`, exchangeRate);
         const totalExchangeRate = (exchangeRate * amount).toFixed(0);
 
@@ -82,7 +80,6 @@ const getExchangeRate = () => {
     });
 };
 
-// Call this function when the exchange button is clicked
 exchangeButton.addEventListener("click", function (e) {
   e.preventDefault();
   getExchangeRate();

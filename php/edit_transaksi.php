@@ -162,7 +162,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         const selectedCurrencyText = document.getElementById("selected-currency");
         let amountInput = document.getElementById("amount");
 
-        // Menangani perubahan pada dropdown untuk memperbarui mata uang yang dipilih
         currencySelect.addEventListener("change", function() {
             const selectedOption = this.options[this.selectedIndex];
             const flagUrl = selectedOption.getAttribute("data-flag");
@@ -172,12 +171,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             selectedCurrencyText.textContent = selectedCurrency;
         });
 
-        // Mengambil nilai amount saat input berubah
         amountInput.addEventListener("input", function() {
             amount = this.value;
         });
 
-        // Menambahkan opsi mata uang secara dinamis
         Object.entries(countryList).forEach(([currencyCode, {
             country,
             code
@@ -190,19 +187,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             currencySelect.insertAdjacentHTML("beforeend", optionTag);
         });
 
-        // Memicu event listener untuk memilih mata uang pertama kali agar flag dan teks sesuai
         currencySelect.dispatchEvent(new Event("change"));
 
         const getExchangeRate = () => {
-            loadingMessage.style.display = "block"; // Menampilkan pesan loading
+            loadingMessage.style.display = "block"; 
 
             const convertFrom = document.getElementById("currency-select").value;
             const amount = document.getElementById("amount").value;
 
-            // Mendapatkan URL untuk API berdasarkan mata uang yang dipilih
             const URL = `https://v6.exchangerate-api.com/v6/5160656534e45c756672c837/latest/${convertFrom}`;
 
-            // Melakukan request API
             fetch(URL, {
                     method: "GET",
                     headers: {
@@ -234,18 +228,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         currency: "IDR",
                     }).format(totalExchangeRate);
 
-                    // Mengupdate nilai input hasil konversi
 
                     resultAmount.value = totalExchangeRate;
                     document.getElementById("result").textContent = `${amount} ${convertFrom} = ${toRupiah}`;
 
 
-                    // Menyembunyikan pesan loading setelah selesai
                     loadingMessage.style.display = "none";
                 })
                 .catch((error) => {
                     console.error("Error fetching exchange rate:", error);
-                    loadingMessage.style.display = "none"; // Menyembunyikan loading jika error
+                    loadingMessage.style.display = "none"; 
                 });
         };
 
@@ -254,17 +246,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         saveButton.addEventListener("click", function(e) {
             const totalExchangeRate = document.getElementById("total-exchange-rate").value;
 
-            // Cek apakah totalExchangeRate kosong
             if (!totalExchangeRate || totalExchangeRate === "") {
-                e.preventDefault(); // Mencegah pengiriman form
+                e.preventDefault(); 
                 alert("Silakan lakukan konversi terlebih dahulu.");
             }
         });
 
-        // Event listener untuk tombol konversi
         exchangeButton.addEventListener("click", function(e) {
-            clicked = true; // Menyimpan status konversi
-            e.preventDefault(); // Mencegah form dikirim
+            clicked = true; 
+            e.preventDefault(); 
             getExchangeRate(); // Menjalankan fungsi konversi
         });
     </script>

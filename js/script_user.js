@@ -8,7 +8,6 @@ const loadingMessage = document.getElementById("loading-message");
 let convertFrom = document.getElementById("currency-select").value;
 let amount = document.getElementById("amount").value;
 
-// Event listener untuk perubahan pada dropdown currency-select
 document.getElementById("currency-select").addEventListener("change", function () {
   convertFrom = this.value;
 });
@@ -44,12 +43,9 @@ const getExchangeRate = () => {
       response.json().then((result) => {
         const exchangeRate = result.conversion_rates["IDR"].toFixed(0);
 
-        // Store exchange rate in localStorage
-        // Simpan nilai tukar untuk setiap mata uang secara terpisah
         localStorage.setItem(`exchangeRate_${convertFrom}`, exchangeRate);
         const totalExchangeRate = (exchangeRate * amount).toFixed(0);
 
-        // Update the hidden input field with the totalExchangeRate
         document.getElementById("total-exchange-rate").value = totalExchangeRate;
 
         const toRupiah = new Intl.NumberFormat("id-ID", {
@@ -67,7 +63,6 @@ const getExchangeRate = () => {
     });
 };
 
-// Call this function when the exchange button is clicked
 
 exchangeButton.addEventListener("click", function (e) {
   clicked = true;

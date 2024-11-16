@@ -655,9 +655,7 @@ $result = mysqli_query($connect, $query);
         function updateDatabase(transactionId, newQuantity) {
             const totalPrice = document.querySelector(`#transaction-${transactionId} .total-price`);
 
-            // Cek apakah elemen ada
             if (totalPrice) {
-                // Mengambil nilai total harga yang sudah diformat (Rp. xxx,xxx)
                 const unformattedPrice = parseFloat(totalPrice.textContent.replace('Rp. ', '').replace(/\./g, '').replace(',', '.'));
 
                 fetch('update_jumlah.php', {
@@ -668,7 +666,6 @@ $result = mysqli_query($connect, $query);
                         body: `id=${transactionId}&quantity=${newQuantity}&totalharga=${unformattedPrice}`
                     })
                     .then(response => {
-                        // Pastikan respons adalah JSON
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
                         }
@@ -688,14 +685,12 @@ $result = mysqli_query($connect, $query);
         }
 
 
-        // JavaScript to handle real-time price update
         const checkboxes = document.querySelectorAll('.price-checkbox');
         const totalPriceElement = document.getElementById('total-price');
         const finalTotalElement = document.getElementById('final-total');
         const totalHarga = document.querySelectorAll('.total-price');
 
 
-        // Function to calculate and display total price
         function calculateTotal() {
             let total = 0;
             let hasChecked = false;
@@ -704,15 +699,12 @@ $result = mysqli_query($connect, $query);
             checkboxes.forEach((checkbox) => {
                 if (checkbox.checked) {
                     hasChecked = true;
-                    // Ambil harga per item sesuai dengan jumlahnya
                     const item = checkbox.closest('.item');
                     const jumlah = parseInt(item.querySelector('.jumlah').textContent);
 
-                    // Ambil kode mata uang dari elemen yang ada di dalam item
                     const currencyCodeElement = item.querySelector('#currency-code'); // Pastikan ini selector yang tepat
                     const convertFrom = currencyCodeElement ? currencyCodeElement.textContent : 'defaultCurrency'; // Ganti 'defaultCurrency' dengan mata uang default jika tidak ada
 
-                    // Ambil nilai tukar berdasarkan mata uang yang digunakan
                     const price = localStorage.getItem(`exchangeRate_${convertFrom}`);
 
                     total += price * jumlah;
@@ -720,24 +712,19 @@ $result = mysqli_query($connect, $query);
 
             });
 
-            // Format and display total price
             totalPriceElement.textContent = `Rp. ${total.toLocaleString('id-ID')}`;
 
-            // Assuming you have other charges or tax to calculate final total
             let finalTotal = total;
             finalTotalElement.textContent = `Rp. ${finalTotal.toLocaleString('id-ID')}`;
 
             payButton.disabled = !hasChecked;
         }
 
-        // Add event listener to checkboxes
         checkboxes.forEach((checkbox) => {
             checkbox.addEventListener('change', calculateTotal);
         });
 
-        // Initial calculation on page load
         calculateTotal();
-        // DOM content loaded for item operations
         document.addEventListener('DOMContentLoaded', function() {
             // Ambil semua elemen item
             document.querySelectorAll('.item').forEach(item => {
@@ -745,17 +732,13 @@ $result = mysqli_query($connect, $query);
                 const addBtn = item.querySelector('.add-btn');
                 const jumlahElement = item.querySelector('.jumlah');
                 const totalPriceElement = item.querySelector('.total-price');
-                // Ambil kode mata uang dari elemen yang ada di DOM
                 const currencyCodeElement = item.querySelector('#currency-code'); // Pastikan ini selector yang tepat
                 const convertFrom = currencyCodeElement ? currencyCodeElement.textContent : 'defaultCurrency'; // Ganti 'defaultCurrency' dengan mata uang default jika tidak ada
 
-                // Ambil nilai tukar berdasarkan mata uang yang digunakan
                 const dataTotal = localStorage.getItem(`exchangeRate_${convertFrom}`);
-                // Ganti 'defaultCurrency' dengan mata uang default jika tidak ada
 
                 const transactionId = item.getAttribute('data-id'); // Pastikan setiap .item memiliki data-id
 
-                // Fungsi untuk memperbarui harga per item dan total harga keseluruhan
                 function updateTotalPrice() {
                     const jumlah = parseInt(jumlahElement.textContent);
                     const newTotal = dataTotal * jumlah;
@@ -763,11 +746,9 @@ $result = mysqli_query($connect, $query);
                         minimumFractionDigits: 0
                     });
 
-                    // Hitung ulang total keseluruhan
                     calculateTotal();
                 }
 
-                // Event listener untuk tombol minus
                 minusBtn.addEventListener('click', function() {
                     let jumlah = parseInt(jumlahElement.textContent);
                     if (jumlah > 1) {
@@ -775,26 +756,22 @@ $result = mysqli_query($connect, $query);
                         jumlahElement.textContent = jumlah;
                         updateTotalPrice();
 
-                        // Panggil fungsi untuk memperbarui database
                         updateDatabase(transactionId, jumlah);
                     }
                 });
 
-                // Event listener untuk tombol plus
                 addBtn.addEventListener('click', function() {
                     let jumlah = parseInt(jumlahElement.textContent);
                     jumlah += 1;
                     jumlahElement.textContent = jumlah;
                     updateTotalPrice();
 
-                    // Panggil fungsi untuk memperbarui database
                     updateDatabase(transactionId, jumlah);
                 });
             });
         });
     </script>
     <script>
-        // For example trigger on button clicked, or any time you need
         var payButton = document.getElementById("pay-button");
         payButton.addEventListener("click", async function() {
             let items = []; // Array untuk menyimpan detail produk
@@ -808,7 +785,6 @@ $result = mysqli_query($connect, $query);
                 const jumlah = parseInt(item.querySelector('.jumlah').textContent);
                 const subtotal = price * jumlah; // Hitung subtotal
 
-                // Tambahkan detail produk ke array
                 items.push({
                     name: convertFrom, // Pastikan ada elemen dengan class 'product-name'
                     quantity: jumlah,
@@ -836,10 +812,8 @@ $result = mysqli_query($connect, $query);
                 const result = await response.json();
 
                 if (result.snapToken) {
-                    // Perbarui snapToken setelah mendapatkan respons
                     let snapToken = result.snapToken;
 
-                    // Buka form pembayaran dengan snapToken terbaru
                     window.snap.pay(snapToken, {
                         onSuccess: async function(result) {
                             alert("Payment success!");
@@ -851,7 +825,6 @@ $result = mysqli_query($connect, $query);
                             };
 
                             try {
-                                // Kirim data transaksi ke update_transaksi.php untuk pembayaran berhasil
                                 const response = await fetch("update_transaksi.php", {
                                     method: "POST",
                                     headers: {

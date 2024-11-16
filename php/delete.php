@@ -19,7 +19,6 @@ if (!$data) {
 
 if ($data) {
     $message = "Transaksi berhasil dihapus.";
-    // Redirect ke halaman yang sama dengan metode GET setelah delete
     header("Location: cart.php?message=" . urlencode($message));
     exit;
 } else {

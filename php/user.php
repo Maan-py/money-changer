@@ -31,7 +31,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($data) {
             $message = "Transaksi berhasil ditambahkan.";
-            // Redirect ke halaman yang sama dengan metode GET setelah insert
             header("Location: user.php?message=" . urlencode($message));
             exit;
         } else {
@@ -86,8 +85,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </svg>
                 </div>
             </div>
-            <!-- Navbar untuk xl dan lebih besar -->
-
             <a
                 class="btn btn-ghost text-xl bg-gradient-to-r text-transparent from-blue-500 to-teal-400 bg-clip-text">MoneyChanger</a>
         </div>
@@ -222,7 +219,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="exchange-rate w-full text-center border p-2 rounded-md" id="result">1 AED = Rp 4.268, 00</div>
                     <button type="button" class="btn btn-primary text-lg" id="exchange-button">Konversi</button>
                     <button type="submit" class="btn btn-info text-lg" id="transaction-button" name="transaksi">Lakukan Transaksi!</button>
-                    <!-- Hidden input to store the exchange rate -->
                     <input type="hidden" name="total_exchange_rate" id="total-exchange-rate">
                 </div>
             </form>
@@ -260,7 +256,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </nav>
         <aside>
-            <p>Copyright © 2024 - All right reserved by ACME Industries Ltd</p>
+            <p>Copyright © 2024 - All right reserved</p>
         </aside>
     </footer>
     <script src="../js/country_list.js"></script>
@@ -275,7 +271,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         let convertFrom = document.getElementById("currency-select").value;
         let amount = document.getElementById("amount").value;
 
-        // Event listener untuk perubahan pada dropdown currency-select
         document.getElementById("currency-select").addEventListener("change", function() {
             convertFrom = this.value;
         });
@@ -314,12 +309,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     response.json().then((result) => {
                         const exchangeRate = result.conversion_rates["IDR"].toFixed(0);
 
-                        // Store exchange rate in localStorage
-                        // Simpan nilai tukar untuk setiap mata uang secara terpisah
                         localStorage.setItem(`exchangeRate_${convertFrom}`, exchangeRate);
                         const totalExchangeRate = (exchangeRate * amount).toFixed(0);
 
-                        // Update the hidden input field with the totalExchangeRate
                         document.getElementById("total-exchange-rate").value = totalExchangeRate;
 
                         const toRupiah = new Intl.NumberFormat("id-ID", {
@@ -332,18 +324,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     })
                 )
                 .catch((error) => {
-                    console.error("Error fetching exchange rate:", error);
+                    console.error("Gagal fetch data:", error);
                     loadingMessage.style.display = "none";
                 });
         };
 
-        // Call this function when the exchange button is clicked
         transactionButton.addEventListener("click", function(e) {
             const totalExchangeRate = document.getElementById("total-exchange-rate").value;
 
-            // Cek apakah totalExchangeRate kosong
             if (!totalExchangeRate || totalExchangeRate === "") {
-                e.preventDefault(); // Mencegah pengiriman form
+                e.preventDefault();
                 alert("Silakan lakukan konversi terlebih dahulu.");
             }
         });
