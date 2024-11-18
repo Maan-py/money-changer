@@ -783,10 +783,10 @@ $result = mysqli_query($connect, $query);
                 const convertFrom = currencyCodeElement ? currencyCodeElement.textContent : "defaultCurrency";
                 const price = localStorage.getItem(`exchangeRate_${convertFrom}`);
                 const jumlah = parseInt(item.querySelector('.jumlah').textContent);
-                const subtotal = price * jumlah; // Hitung subtotal
+                const subtotal = price * jumlah; 
 
                 items.push({
-                    name: convertFrom, // Pastikan ada elemen dengan class 'product-name'
+                    name: convertFrom,
                     quantity: jumlah,
                     price: price,
                     subtotal: subtotal
@@ -794,8 +794,8 @@ $result = mysqli_query($connect, $query);
             });
 
             let data = {
-                items: items, // Kirim array detail produk
-                finalTotal: items.reduce((total, item) => total + item.subtotal, 0) // Hitung total akhir
+                items: items,
+                finalTotal: items.reduce((total, item) => total + item.subtotal, 0)
             };
 
             try {
@@ -852,11 +852,11 @@ $result = mysqli_query($connect, $query);
 
                             let dataTransaction = {
                                 transaction_id: result.transaction_id,
-                                status_pembayaran: 'Pending', // Status pending
+                                status_pembayaran: 'Pending', 
                             };
 
                             try {
-                                // Kirim data transaksi ke update_transaksi.php untuk pembayaran pending
+                                
                                 const response = await fetch("update_transaksi.php", {
                                     method: "POST",
                                     headers: {
@@ -884,11 +884,10 @@ $result = mysqli_query($connect, $query);
 
                             let dataTransaction = {
                                 transaction_id: result.transaction_id,
-                                status_pembayaran: 'Gagal', // Status gagal
+                                status_pembayaran: 'Gagal',
                             };
 
                             try {
-                                // Kirim data transaksi ke update_transaksi.php untuk pembayaran gagal
                                 const response = await fetch("update_transaksi.php", {
                                     method: "POST",
                                     headers: {
