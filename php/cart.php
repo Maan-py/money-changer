@@ -73,8 +73,8 @@ $result = mysqli_query($connect, $query);
     <?php
     $message = isset($_GET['message']) ? $_GET['message'] : '';
     if ($message) {
-        echo '<div role="alert" class="alert fixed top-15 ' . (strpos($message, 'berhasil') !== false ? 'alert-success' : 'alert-error') . ' w-1/4 justify-center mt-[2rem]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+        echo '<div role="alert" class="alert alert-success fixed top-[2rem] absolute' . (strpos($message, 'berhasil') !== false ? 'alert-success' : 'alert-error') . ' w-1/4 justify-center mt-[2rem]">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>' . htmlspecialchars($message) . '</span>
@@ -783,7 +783,7 @@ $result = mysqli_query($connect, $query);
                 const convertFrom = currencyCodeElement ? currencyCodeElement.textContent : "defaultCurrency";
                 const price = localStorage.getItem(`exchangeRate_${convertFrom}`);
                 const jumlah = parseInt(item.querySelector('.jumlah').textContent);
-                const subtotal = price * jumlah; 
+                const subtotal = price * jumlah;
 
                 items.push({
                     name: convertFrom,
@@ -852,11 +852,11 @@ $result = mysqli_query($connect, $query);
 
                             let dataTransaction = {
                                 transaction_id: result.transaction_id,
-                                status_pembayaran: 'Pending', 
+                                status_pembayaran: 'Pending',
                             };
 
                             try {
-                                
+
                                 const response = await fetch("update_transaksi.php", {
                                     method: "POST",
                                     headers: {

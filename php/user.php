@@ -261,6 +261,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </footer>
     <script src="../js/country_list.js"></script>
     <script>
+        // KEBUTUHAN MANIPULASI DOM
         const currencySelect = document.getElementById("currency-select");
         const currencyFlag = document.getElementById("currency-flag");
         const selectedCurrencyText = document.getElementById("selected-currency");
@@ -271,14 +272,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         let convertFrom = document.getElementById("currency-select").value;
         let amount = document.getElementById("amount").value;
 
+        // KETIKA DROPDOWN BERUBAH TETAPKAN VALUE
         document.getElementById("currency-select").addEventListener("change", function() {
             convertFrom = this.value;
         });
 
+        // KETIKA INPUT BERUBAH TETAPKAN VALUE
         document.getElementById("amount").addEventListener("input", function() {
             amount = this.value;
         });
 
+        // UNTUK MENAMPILKAN BENDERA
         Object.entries(countryList).forEach(([currencyCode, {
             country,
             code
@@ -288,9 +292,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           ${country} (${currencyCode})
       </option>
   `;
+            // MENGINSERT HTML BENDERA
             currencySelect.insertAdjacentHTML("beforeend", optionTag);
         });
 
+        // KETIKA DROPDOWN BERUBAH TETAPKAN VALUE DAN UBAH SELECTED
         currencySelect.addEventListener("change", function() {
             const selectedOption = this.options[this.selectedIndex];
             const flagUrl = selectedOption.getAttribute("data-flag");
@@ -298,47 +304,66 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             selectedCurrencyText.textContent = selectedOption.value;
         });
 
+        
         currencySelect.dispatchEvent(new Event("change"));
 
+        // FETCH API
         const getExchangeRate = () => {
+            // DISPLAY LOADING
             loadingMessage.style.display = "block";
             const URL = `https://v6.exchangerate-api.com/v6/0c98421abcccf6922c36d86f/latest/${convertFrom}`;
 
+            // FETCH API
             fetch(URL)
                 .then((response) =>
                     response.json().then((result) => {
+                        // AMBIL HASIL KONVERSI KE IDR
                         const exchangeRate = result.conversion_rates["IDR"].toFixed(0);
 
+                        // TETAPKAN HASIL KONVERSI KE LOCAL STORAGE
                         localStorage.setItem(`exchangeRate_${convertFrom}`, exchangeRate);
+
+                        // MENGHITUNG TOTAL EXCHANGE RATE
                         const totalExchangeRate = (exchangeRate * amount).toFixed(0);
 
+                        // UBAH VALUE MENJADI TOTAL EXCHANGE RATE
                         document.getElementById("total-exchange-rate").value = totalExchangeRate;
 
+                        // FORMAT TOTAL EXCHANGE RATE KE RUPIAH
                         const toRupiah = new Intl.NumberFormat("id-ID", {
                             style: "currency",
                             currency: "IDR",
                         }).format(totalExchangeRate);
 
+                        // TAMPILKAN RESULT
                         resultAmount.innerText = `${amount} ${convertFrom} = ${toRupiah}`;
+                        // HIDE LOADING
                         loadingMessage.style.display = "none";
                     })
                 )
+                // TANGKAP ERROR DAN TAMPILKAN
                 .catch((error) => {
                     console.error("Gagal fetch data:", error);
                     loadingMessage.style.display = "none";
                 });
         };
 
+        // KETIKA TOMBOL TRANSAKSI DIKLIK
         transactionButton.addEventListener("click", function(e) {
+
             const totalExchangeRate = document.getElementById("total-exchange-rate").value;
 
+            // VALIDASI JIKA TOMBOL KONVERSI HARUS DIKLIK DAHULU
             if (!totalExchangeRate || totalExchangeRate === "") {
                 e.preventDefault();
                 alert("Silakan lakukan konversi terlebih dahulu.");
             }
         });
+
+        // KETIKA TOMBOL TRANSAKSI DIKLIK
         exchangeButton.addEventListener("click", function(e) {
             e.preventDefault();
+            // MENGHASILKAN API
             getExchangeRate();
         });
     </script>

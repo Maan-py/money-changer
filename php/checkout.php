@@ -1,4 +1,5 @@
 <?php
+// NERIMA DATA HASIL KIRIMAN CART.PHP DARI AJAX
 session_start();
 if (empty($_SESSION["role"]) || $_SESSION["role"] != "User") {
     header("Location: login.php");
@@ -15,7 +16,7 @@ $row = mysqli_fetch_assoc($query);
 
 require_once dirname(__FILE__) . '/midtrans-php-master/Midtrans.php';
 
-\Midtrans\Config::$serverKey = 'SB-Mid-server-UjBAdgfLUC3T81lbwNtCMGYH';
+\Midtrans\Config::$serverKey = '`SB-Mid-server-UjBAdgfLUC3T81lbwNtCMGYH`';
 \Midtrans\Config::$isProduction = false;
 \Midtrans\Config::$isSanitized = true;
 \Midtrans\Config::$is3ds = true;

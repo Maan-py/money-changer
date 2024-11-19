@@ -1,6 +1,10 @@
 <?php
 include "koneksi.php";
 session_start();
+if (empty($_SESSION["role"]) || $_SESSION["role"] != "Admin") {
+    header("Location: user.php");
+    exit;
+}
 
 $id_transaksi = $_GET['id'];
 

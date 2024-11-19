@@ -1,5 +1,11 @@
 <?php
+// MENERIMA DATA JSON UNTUK MENYIMPAN HASIL KONVERSI KE RUPIAH
 session_start();
+
+if (empty($_SESSION["role"]) || $_SESSION["role"] != "Admin") {
+    header("Location: user.php");
+    exit;
+}
 
 $data = json_decode(file_get_contents("php://input"), true);
 
